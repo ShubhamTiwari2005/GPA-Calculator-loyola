@@ -1,0 +1,263 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SGPA Calculator</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f2f2f2;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: 100vh;
+            overflow: hidden; /* Prevent body overflow */
+        }
+
+        #header {
+            background-color: #fff;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            width: 80%;
+            max-width: 600px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            position: relative;
+            z-index: 1; /* Keep header on top */
+            margin-bottom: 20px;
+        }
+
+        #logos {
+            display: flex;
+            justify-content: space-between;
+            width: 100%;
+        }
+
+        #collegeLogo{
+            max-width: 100px;
+            max-height: 100px;
+        }
+		
+		#departmentLogo {
+            max-width: 120px;
+            max-height: 120px;
+        }
+
+        #collegeInfo {
+            text-align: center;
+        }
+
+        #collegeName{
+            font-weight: bold;
+            font-size: 2.0em;
+			
+        }
+
+        #departmentName {
+            font-weight: bold;
+            font-size: 1.2em;
+			text-align: center;
+			
+        }
+		
+        #collegeAddress {
+            font-size: 0.7em;
+            font-style: italic;
+        }
+
+        #calculator {
+            background-color: #fff;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            width: 80%;
+            max-width: 600px;
+            overflow: auto; /* Enable scrolling for the table */
+            position: relative;
+            z-index: 0; /* Keep table behind the header */
+        }
+
+        h1 {
+            color: #333;
+            text-align: center;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        th, td {
+            padding: 10px;
+            text-align: left;
+            border-bottom: 1px solid #ddd;
+        }
+
+        th {
+            background-color: #f2f2f2;
+        }
+
+        input {
+            width: calc(100% - 12px); /* Adjusted width to leave room for the border and padding */
+            padding: 8px;
+            box-sizing: border-box;
+        }
+
+        #result {
+            margin-top: 20px;
+            text-align: center;
+            font-weight: bold;
+        }
+
+        .failed {
+            color: red;
+        }
+
+        .passed {
+            color: green;
+        }
+
+        .warning {
+            color: #ff8c00;
+        }
+
+        #totalSubjectsContainer {
+            display: flex;
+            margin-bottom: 20px;
+            align-items: center;
+        }
+
+        #totalSubjectsLabel {
+            margin-right: 10px;
+            width: 450px;
+        }
+    </style>
+</head>
+<body>
+    <div id="header">
+        <div id="logos">
+            <!-- Replace the placeholder URLs with your actual college and department logo URLs -->
+            <img id="collegeLogo" src="C:\Users\91918\Downloads\LoyolaSecund.png" alt="College Logo">
+            <div id="collegeInfo">
+                <div id="collegeName">Loyola Academy</div>
+                <div id="collegeAddress">(Autonomous and affiliated to Osmania University)<br>
+                    Re-accredited with ‘A’ Grade by NAAC – III Cycle,<br>
+                    A “College with Potential for Excellence” by UGC<br>
+					Old Alwal, Secunderabad-500 010 (TS INDIA)
+                </div>
+                <div id="departmentName">B.Sc. Computer Science & Internet of Things</div>
+            </div>
+            <img id="departmentLogo" src="C:\Users\91918\Downloads\WhatsApp Image 2023-04-11 at 16.59.44.jpg" alt="Department Logo">
+        </div>
+        <h2>SGPA Calculator</h2>
+    </div>
+
+    <div id="calculator">
+        <div id="totalSubjectsContainer">
+            <label for="totalSubjects" id="totalSubjectsLabel">Enter the total number of subjects:</label>
+            <input type="number" id="totalSubjects" placeholder="Total Subjects" required>
+        </div>
+        
+        <table>
+            <thead>
+                <tr>
+                    <th>SUBJECTS</th>
+                    <th>CREDITS</th>
+                    <th>POINT VALUE</th>
+                </tr>
+            </thead>
+            <tbody id="subjectsTableBody">
+                <!-- JavaScript will dynamically generate rows based on user input -->
+            </tbody>
+        </table>
+        <div id="result"></div>
+        <button id="calculateButton">Calculate SGPA</button>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            const subjectsTableBody = document.getElementById('subjectsTableBody');
+            const resultDiv = document.getElementById('result');
+            const calculateButton = document.getElementById('calculateButton');
+            const totalSubjectsInput = document.getElementById('totalSubjects');
+
+            // Dynamically generate rows based on user input
+            totalSubjectsInput.addEventListener('input', function () {
+                subjectsTableBody.innerHTML = '';
+
+                const totalSubjects = parseInt(totalSubjectsInput.value) || 0;
+
+                for (let i = 0; i < totalSubjects; i++) {
+                    const row = document.createElement('tr');
+                    row.innerHTML = `
+                        <td><input type="text" placeholder="Subject ${i + 1}" required></td>
+                        <td><input type="number" placeholder="Credits" required></td>
+                        <td><input type="number" placeholder="Point Value" required></td>
+                    `;
+                    subjectsTableBody.appendChild(row);
+                }
+            });
+
+            // Calculate SGPA on button click
+            calculateButton.addEventListener('click', function () {
+                let totalCreditPoints = 0;
+                let totalCredits = 0;
+                let hasFailed = false;
+                let isValid = true;
+
+                // Validate total subjects input
+                const totalSubjects = parseInt(totalSubjectsInput.value) || 0;
+                if (isNaN(totalSubjects) || totalSubjects <= 0) {
+                    isValid = false;
+                    resultDiv.textContent = 'Please enter a valid total number of subjects.';
+                    resultDiv.className = 'warning';
+                    return;
+                }
+
+                const rows = subjectsTableBody.querySelectorAll('tr');
+                rows.forEach(row => {
+                    const subjectInput = row.querySelector('td:nth-child(1) input');
+                    const creditsInput = row.querySelector('td:nth-child(2) input');
+                    const pointValueInput = row.querySelector('td:nth-child(3) input');
+
+                    const credits = parseInt(creditsInput.value);
+                    const pointValue = parseInt(pointValueInput.value);
+
+                    // Validate inputs
+                    if (isNaN(credits) || isNaN(pointValue) || credits < 0 || pointValue < 0) {
+                        isValid = false;
+                        resultDiv.textContent = 'Please enter valid data.';
+                        resultDiv.className = 'warning';
+                        return;
+                    }
+
+                    if (pointValue < 5) {
+                        hasFailed = true;
+                        return;
+                    }
+
+                    totalCreditPoints += credits * pointValue;
+                    totalCredits += credits;
+                });
+
+                if (isValid) {
+                    if (hasFailed) {
+                        resultDiv.textContent = 'Sorry, you have failed. You are not Eligible to calculate the GPA.';
+                        resultDiv.className = 'failed';
+                    } else {
+                        const sgpa = totalCredits === 0 ? 0 : totalCreditPoints / totalCredits;
+                        resultDiv.textContent = `Congratulations! You have passed. Your GPA is: ${sgpa.toFixed(2)}`;
+                        resultDiv.className = 'passed';
+                    }
+                }
+            });
+        });
+    </script>
+</body>
+</html>
